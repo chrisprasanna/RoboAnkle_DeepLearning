@@ -1,0 +1,23 @@
+Session5 Trial5 was omitted due to saturated motor current signal 
+
+Passive Trials and Active Trials organized together or separately
+- Unpowered (Passive) Trials: S5T1, S7T3, S8T1, S9T1
+
+Response indexed at t+1, Features indexed at t
+UPDATED: features and responses have all 3600 timesteps included
+
+Data resampled at 120 Hz
+
+Features from top to bottom
+1 Motor Current
+2 Motor Velocity
+3 Hip Angular Velocity
+4 Hip Angle
+5 Ankle Angular Velocity
+6 Ankle Angle
+7 Left Heel FSR (2filt)
+8 Right Heel FSR (2filt)
+9 Left Midsole FSR (Raw)
+10 Right Midsole FSR (Raw)
+11 Left Toe FSR (Raw)
+12 Right Toe FSR (Raw)
