@@ -16,8 +16,9 @@ else
     filenames = {s7, s8, s9};
     unPoweredTrials = [3, 6, 13];
 end
-% numInputs = [1,2,4,5,7,8,9,10,11,12, 13:18]; % 1:10
-numInputs = [1,2,4,5,7,8, 13:18]; % 1:10
+
+% numInputs = [1,2,4,5,7,8, 13:18]; % 1:10
+numInputs = [1,2,5,8,9,11]; % 1:10
 
 UU = [];
 XX = [];
