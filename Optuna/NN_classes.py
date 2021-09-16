@@ -188,6 +188,7 @@ class InputAttentionEncoder(nn.Module):
             #attention weights for each k in N (equation 8)
             x = self.W_e(h_c_concat).unsqueeze_(1).repeat(1, self.N, 1)
             y = self.U_e(inputs.permute(0, 2, 1))
+            # y = self.U_e(inputs.permute(0, 1, 3, 2)) # CHANGED
             z = torch.tanh(x + y)
             e_k_t = torch.squeeze(self.v_e(z))
         
@@ -197,7 +198,7 @@ class InputAttentionEncoder(nn.Module):
             #weight inputs (equation 10)
             weighted_inputs = alpha_k_t * inputs[:, t, :] 
     
-            #calculate next hidden states (equation 11)
+            # calculate next hidden states (equation 11)
             # h_tm1, s_tm1 = self.encoder_lstm(weighted_inputs, (h_tm1, s_tm1))
             h_tm1 = self.encoder_gru(weighted_inputs, h_tm1)
             

@@ -46,3 +46,8 @@ def _todict(matobj):
         else:
             dict[strg] = elem
     return dict  
+
+#Defining MAPE function
+def MAPE(Y_actual,Y_Predicted):
+    mape = np.mean(np.abs((Y_actual - Y_Predicted)/Y_actual))*100
+    return mape

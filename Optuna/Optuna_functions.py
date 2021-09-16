@@ -12,11 +12,13 @@ Includes getting the model and datasets
 
 from NN_classes import FFN, GRU, TransformerModel, DARNN
 from DL_classes import CustomTensorDataset
-from Train_functions import train_FFN, train_GRU, train_Transformer, train_DARNN
+# from Train_functions import train_FFN, train_GRU, train_Transformer, train_DARNN
+from main_Train import train_PAFP
 
 import torch
 import torch.nn as nn
 import torch.optim as optim  # ADAM, SGD, etc
+# import torch.utils.data.SubsetRandomSampler as SubsetRandomSampler
 
 import optuna
 from optuna.trial import TrialState
@@ -25,6 +27,7 @@ import pickle as pickle # import pickle5 as pickle
 import numpy as np
 import pandas as pd
 import os
+import time as timer
 
 #%% Get Model
 
@@ -37,7 +40,7 @@ def define_model(trial, model_name, sequence_length, device, constants):
     # Which model type are we optimizing?
     if model_name == 'FFN':
         num_layers = trial.suggest_int("num_layers", 1, 3)
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 8)
+        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 11)
         hidden_size = 2**hidden_size_power
         dropout = trial.suggest_float("dropout", 0.1, 0.5)  
         
@@ -45,23 +48,14 @@ def define_model(trial, model_name, sequence_length, device, constants):
         
     elif model_name == 'GRU':
         num_layers = trial.suggest_int("num_layers", 1, 3)
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 8)
+        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 11)
         hidden_size = 2**hidden_size_power
         dropout = trial.suggest_float("dropout", 0.1, 0.5)  
         
-        model = GRU(input_size, hidden_size, output_size, num_layers, sequence_length, dropout, device)
-        
-    elif model_name == 'Transformer':
-        dropout = trial.suggest_float("dropout", 0.1, 0.5)
-        num_layers = trial.suggest_int("num_layers", 1, 6)
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 8)
-        hidden_size = 2**hidden_size_power
-        nhead = trial.suggest_int("num_attn_heads", 1, 10)
-        
-        model = TransformerModel(output_size, input_size, nhead, hidden_size, num_layers, dropout)
+        model = GRU(input_size, hidden_size, output_size, num_layers, sequence_length, dropout, device)     
         
     elif model_name == 'DA-RNN':
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 8)
+        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 11)
         hidden_size = 2**hidden_size_power
         P_power = trial.suggest_int("decoder_size_power", 4, 7)
         P = 2**P_power
@@ -77,7 +71,7 @@ def define_model(trial, model_name, sequence_length, device, constants):
 
 #%% Get Datasets
 
-def get_dataLoaders(trial, sequence_length, constants):
+def get_dataLoaders(trial, sequence_length, constants, train_bool):
     
     # Unpack constants
     input_size = constants['input size']
@@ -85,6 +79,7 @@ def get_dataLoaders(trial, sequence_length, constants):
     num_trials = constants['number of walking trials']
     num_timestepsPerTrial = constants['number of timesteps per trial']
     Data = constants['dataset']
+    prediction_horizon = constants['pred_horizon']
     
     # Temporal Processing
 
@@ -101,19 +96,18 @@ def get_dataLoaders(trial, sequence_length, constants):
     
     for n in range(num_trials):
     
-        data_x = pd.DataFrame(features[n,:,:],
-                           columns=['im', 'wm','dTh_h','Th_h','dTh_a','Th_a','Fh_l','Fh_r','Fm_l','Fm_r','Ft_l','Ft_r'])
-        data_y = pd.DataFrame(responses[n,:], columns=['tau'])
+        data_x = pd.DataFrame(features[n,:,:])
+        data_y = pd.DataFrame(responses[n,:])
         
         for i, name in enumerate(list(data_x.columns)):
             for j in range(sequence_length):
                 X[n, :, j, i] = data_x[name].shift(sequence_length - j - 1).fillna(method="bfill")
                 
         for j in range(sequence_length):
-            y[n,:,j,0] = data_y["tau"].shift(sequence_length - j - 1).fillna(method="bfill")
+            y[n,:,j,0] = data_y[0].shift(sequence_length - j - 1).fillna(method="bfill")
                 
-        prediction_horizon = 1
-        target[n,:,0] = data_y["tau"].shift(-prediction_horizon).fillna(method="ffill").values
+        # prediction_horizon = 1
+        target[n,:,0] = data_y[0].shift(-prediction_horizon).fillna(method="ffill").values
     
         
     X = X[:,sequence_length:-1]
@@ -170,19 +164,58 @@ def get_dataLoaders(trial, sequence_length, constants):
     target_test_t = torch.Tensor(target_test)
     
     # Add Guassian Noise to Training and Validation Inputs
-    noiseSTD = trial.suggest_float("noiseSTD", 0.1, 1, log=False)
-    noiseBoolean = torch.Tensor([1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]) # last 4 inputs already are noisy signals
-    Xtrain_noisy = X_train_t  + noiseSTD*torch.randn(X_train_t.size())*noiseBoolean
-    Xval_noisy = X_val_t + noiseSTD*torch.randn(X_val_t.size())*noiseBoolean
+    if train_bool:
+        noiseSTD = trial.suggest_float("noiseSTD", 0.1, 1, log=False)
+    else:
+        noiseSTD = 0
     
-    # Create Data Loaders
-    train_dataset = CustomTensorDataset([Xtrain_noisy, target_train_t])
-    val_dataset = CustomTensorDataset([X_val_t, target_val_t])
-    test_dataset = CustomTensorDataset([X_test_t, target_test_t])                              
+    Xtrain_noisy = X_train_t  + noiseSTD*torch.randn(X_train_t.size())
+    Xval_noisy = X_val_t + noiseSTD*torch.randn(X_val_t.size())
     
-    train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=1,shuffle=False)
-    val_loader = torch.utils.data.DataLoader(val_dataset,batch_size=1,shuffle=False)
-    test_loader = torch.utils.data.DataLoader(test_dataset,batch_size=1,shuffle=False)
+    ## Create Data Loaders
+    if train_bool:
+        
+        # Suggest a batch size for optimization
+        batch_size_power = trial.suggest_int("batch_size_power", 4, 8)
+        batch_size = 2**batch_size_power
+        
+        # (timesteps, trials, sequence, features)
+        # This way we are dividing batches by timesteps and not trials
+        Xtrain_noisy = Xtrain_noisy.permute(1,0,2,3)
+        # X_val_t = X_val_t.permute(1,0,2,3)
+        # X_test_t = X_test_t.permute(1,0,2,3)
+        target_train_t = target_train_t.permute(1,0,2)
+        # target_val_t = target_val_t.permute(1,0,2)
+        # target_test_t = target_test_t.permute(1,0,2)
+        
+        # Create datasets
+        train_dataset = CustomTensorDataset([Xtrain_noisy, target_train_t])
+        val_dataset = CustomTensorDataset([X_val_t, target_val_t])
+        test_dataset = CustomTensorDataset([X_test_t, target_test_t])
+
+        # dataloader options 
+        train_shuffle = False   # data reshuffled at every epoch
+        batch_drop = True       # drop the last incomplete batch, if the dataset size is not divisible by the batch size                           
+        # sampler = SubsetRandomSampler()
+        
+        # Create Dataloaders
+        train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,
+                                                   shuffle=train_shuffle, drop_last=batch_drop)
+        val_loader = torch.utils.data.DataLoader(val_dataset,batch_size=1,shuffle=False)
+        test_loader = torch.utils.data.DataLoader(test_dataset,batch_size=1,shuffle=False)
+        
+    else:
+        
+        # Create Datasets (trials, timesteps, sequence, features)
+        train_dataset = CustomTensorDataset([X_train_t, target_train_t])
+        val_dataset = CustomTensorDataset([X_val_t, target_val_t])
+        test_dataset = CustomTensorDataset([X_test_t, target_test_t])                              
+        
+        # Create Dataloaders
+        train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=1,shuffle=False)
+        val_loader = torch.utils.data.DataLoader(val_dataset,batch_size=1,shuffle=False)
+        test_loader = torch.utils.data.DataLoader(test_dataset,batch_size=1,shuffle=False)
+    
     
     
     return train_loader, val_loader, test_loader
@@ -190,6 +223,9 @@ def get_dataLoaders(trial, sequence_length, constants):
 #%% Objective
 
 def objective(trial, model_name, constants):
+    
+    # Empty GPU Cache
+    torch.cuda.empty_cache()
     
     # Unpack constants
     device = constants['device']
@@ -199,14 +235,17 @@ def objective(trial, model_name, constants):
     criterion = constants['loss function']
     num_epochs = constants['max number of epochs']
     
+    # Start timer
+    start = timer.time()
+    
     # Suggest a sequence length
-    sequence_length = trial.suggest_int("sequence_length", 2, 75, log=False) # Up to half a step
+    sequence_length = trial.suggest_int("sequence_length", 2, 25, log=False) # one step ~= 150 points
     
     # Generate the Model
     model = define_model(trial, model_name, sequence_length, device, constants).to(device)
     
     # Get Training Dataset with Added Noise
-    train_loader, val_loader, test_loader = get_dataLoaders(trial, sequence_length, constants)
+    train_loader, val_loader, test_loader = get_dataLoaders(trial, sequence_length, constants, train_bool=True)
     
     # Optimizer Options
     optimizer_name = "AdamW"
@@ -222,29 +261,25 @@ def objective(trial, model_name, constants):
                                                  patience=lr_patience, cooldown=lr_step_size, 
                                                  min_lr=lr_min, verbose=True)
 
-    # Train
-    if model_name == 'FFN':
-        MSE = train_FFN(trial, model, scheduler, optimizer, criterion,  
-                        train_loader, val_loader, num_epochs, device)
-        
-    elif model_name == 'GRU':
-        MSE = train_GRU(trial, model, scheduler, optimizer, criterion, 
-                        train_loader, val_loader, num_epochs, device)
-        
-    elif model_name == 'Transformer':
-        MSE = train_Transformer(trial, model, scheduler, optimizer, criterion, 
-                        train_loader, val_loader, num_epochs, device)
-        
-    elif model_name == 'DA-RNN':
-        MSE = train_DARNN(trial, model, scheduler, optimizer, criterion, 
-                        train_loader, val_loader, num_epochs, device)
-        
-    else:
-        print('Model Name is not one of the four options!!')
-        print('Must be FFN, GRU, Transformer, or DA-RNN')
-        model = []
+    # Prints Params
+    print("\nTrain {} Trial {} with Params: ".format(model_name, trial.number))
+    for key, value in trial.params.items():
+        print("    {}: {}".format(key, value))
+    print('\n')
     
-    return MSE
+    # Train
+    MSE = train_PAFP(trial, model_name, model, scheduler, optimizer, criterion,  
+                        train_loader, val_loader, num_epochs, device)
+    
+    # Train time
+    train_time = timer.time() - start
+    
+    # Objective function
+    w_mse = 1 # weight associated with validation MSE
+    w_time = 0 # weight associated with training time
+    J = (w_mse*MSE) + (w_time*train_time) # Cost
+    
+    return J
 
 #%% Optimization
 
@@ -276,7 +311,7 @@ def optimize_hyperparams(model_name, constants):
     print("\n{} Best trial:".format(model_name), file=open(filename, "a"))
     trial = study.best_trial
     
-    print("\n  Validation MSE Value: ", trial.value, file=open(filename, "a"))
+    print("\n  Validation Obj. Func. Value: ", trial.value, file=open(filename, "a"))
     
     print("\n  {} Params: ".format(model_name), file=open(filename, "a"))
     for key, value in trial.params.items():

@@ -4,11 +4,6 @@ Created on Wed Apr 21 12:23:55 2021
 Prosthetic Ankle Torque Predictor
 Optimization Script for all Networks 
 
-This script is the entry point of the full hyperparameter optimization and 
-neural network training procedure. The role of this script is to load the 
-dataset, specify the hyperparameter search ranges, initialize neural network 
-training, evaluate the optimized networks, and save the results.  
-
 @author: Chris Prasanna
 """
 
@@ -16,15 +11,25 @@ training, evaluate the optimized networks, and save the results.
 
 import torch
 import torch.nn as nn
+from scipy import signal
+import numpy as np
 
 import os
 import time
+import sys
 
 from DL_functions import loadmat
 from Optuna_functions import optimize_hyperparams, get_dataLoaders
-from Test_functions import test_network, visualize_results
+from Test_functions import test_network, visualize_results, fitted_histogram
+
+from GPUtil import showUtilization as gpu_usage
 
 #%% Load and Organize Data
+
+# Clear cuda memory
+torch.cuda.empty_cache()
+print("Initial GPU Usage")
+gpu_usage() 
 
 # Load Data from .mat file
 print('Loading Data...')
@@ -61,6 +66,8 @@ input_size = num_features
 output_size = 1
 step_size = 1
 fs = 120 # sampling freq 
+fsNew = 30 # data rate for sub-sampling
+prediction_horizon = 1 # set as 1 for simulation
 
 # Optimizer Hyperparameters
 lr_step_size = 3           # number of epochs before reducing learning rate
@@ -68,15 +75,13 @@ lr_patience = 3
 min_lr = 1e-5
 amsgrad = False
 
-# Training Hyperparameters
-num_epochs = 1000
-batch_size = num_trials
-
 # Loss Function
 criterion = nn.MSELoss()
 
-# Optuna 
+# Training Hyperparameters
+num_epochs = 1000
 optuna_trials = 500
+batch_size = num_trials
 optuna_timeout = None
 
 # Hyperparameters to Optimize Using Optuna
@@ -107,12 +112,19 @@ directory = f'{timestr[:-2]}'
 os.makedirs(os.path.join(cwd, 'Results',directory)) 
 
 os.makedirs(os.path.join(cwd, 'Results',directory,'FFN')) 
-os.makedirs(os.path.join(cwd, 'Results',directory,'GRU')) 
-# os.makedirs(os.path.join(cwd, 'Results',directory,'Transformer')) 
+os.makedirs(os.path.join(cwd, 'Results',directory,'GRU'))  
 os.makedirs(os.path.join(cwd, 'Results',directory,'DA-RNN')) 
 
 PATH = os.path.join(cwd,'Results',directory) 
 
+#%% Resample Time Series Data
+
+fsNew = 30 # data rate for sub-sampling
+fsRatio = fsNew / fs
+num_timestepsPerTrial = int(num_timestepsPerTrial * fsRatio)
+
+for key in Data:
+     Data[key] = signal.resample(Data[key], num_timestepsPerTrial, axis=1)
 
 #%% Create a Dictionary Object of Constants to pass through Functions
 
@@ -129,7 +141,8 @@ constants = {'device':device,
              'max number of epochs':num_epochs,
              'number of optuna trials':optuna_trials,
              'optuna timeout':optuna_timeout,
-             'dataset': Data
+             'dataset': Data, 
+             'pred_horizon': prediction_horizon
              }
 
 # Independent Variables
@@ -142,14 +155,22 @@ constants = {'device':device,
 
 #%% Optimize Hyperparameters for all NNs
 
+# remove pickle files
+dir_name = os.getcwd()
+test = os.listdir(dir_name)
+for item in test:
+    if item.endswith(".pickle"):
+        os.remove(os.path.join(dir_name, item))
+
 print(" *** Optimizing the Networks...")
- 
+
+torch.cuda.empty_cache() 
 FFN_model, FFN_trial = optimize_hyperparams('FFN', constants)
 
+torch.cuda.empty_cache()
 GRU_model, GRU_trial = optimize_hyperparams('GRU', constants)
 
-# Transformer_model, Transformer_trial = optimize_hyperparams('Transformer', constants)
-
+torch.cuda.empty_cache()
 DARNN_model, DARNN_trial = optimize_hyperparams('DA-RNN', constants)
 
 #%% Test Trained Network
@@ -158,27 +179,24 @@ print(" *** Testing the Networks...")
 
 sequence_length_FFN = FFN_trial.params['sequence_length']
 sequence_length_GRU = GRU_trial.params['sequence_length']
-# sequence_length_Transformer = Transformer_trial.params['sequence_length']
 sequence_length_DARNN = DARNN_trial.params['sequence_length']
 
 # FFN
-train_loader_FFN, val_loader_FFN, test_loader_FFN = get_dataLoaders(FFN_trial, sequence_length_FFN, constants)
+train_loader_FFN, val_loader_FFN, test_loader_FFN = get_dataLoaders(FFN_trial, sequence_length_FFN, 
+                                                                    constants, train_bool=False)
 target_FFN, pred_FFN, RMSE_FFN, test_loss_FFN, pcc_FFN = test_network(test_loader_FFN, FFN_model, 
                                                          'FFN', criterion, PATH, device)
 
 # GRU
-train_loader_GRU, val_loader_GRU, test_loader_GRU = get_dataLoaders(GRU_trial, sequence_length_GRU, constants)
+train_loader_GRU, val_loader_GRU, test_loader_GRU = get_dataLoaders(GRU_trial, sequence_length_GRU, 
+                                                                    constants, train_bool=False)
 target_GRU, pred_GRU, RMSE_GRU, test_loss_GRU, pcc_GRU = test_network(test_loader_GRU, GRU_model, 
                                                          'GRU', criterion, PATH, device)
-
-# # Transformer
-# train_loader_Transformer, val_loader_Transformer, test_loader_Transformer = get_dataLoaders(Transformer_trial, sequence_length_Transformer, constants)
-# target_Transformer, pred_Transformer, RMSE_Transformer, test_loss_Transformer, pcc_Transformer = test_network(test_loader_Transformer, 
-#                                                                                              Transformer_model, 'Transformer', 
-#                                                                                              criterion, PATH)
+                                                                                            
 
 # Da-RNN
-train_loader_DARNN, val_loader_DARNN, test_loader_DARNN = get_dataLoaders(DARNN_trial, sequence_length_DARNN, constants)
+train_loader_DARNN, val_loader_DARNN, test_loader_DARNN = get_dataLoaders(DARNN_trial, sequence_length_DARNN, 
+                                                                    constants, train_bool=False)
 target_DARNN, pred_DARNN, RMSE_DARNN, test_loss_DARNN, pcc_DARNN = test_network(test_loader_DARNN, DARNN_model, 
                                                          'DA-RNN', criterion, PATH, device)
 
@@ -199,12 +217,6 @@ GRU_PATH = os.path.join(PATH,'GRU',filename)
 net = GRU_model.state_dict()
 torch.save(net, GRU_PATH)
 
-# Transformer
-# filename = f'Transformer NN {timestr[:-2]}.pt'
-# Transformer_PATH = os.path.join(PATH,'Transformer',filename) 
-# net = Transformer_model.state_dict()
-# torch.save(net, Transformer_PATH)
-
 # DA-RNN
 filename = f'DA-RNN NN {timestr[:-2]}.pt'
 DARNN_PATH = os.path.join(PATH,'DA-RNN',filename) 
@@ -219,22 +231,19 @@ print(" *** Plotting the Test Results...")
 # FFN
 percentFit_FFN, percentError_FFN = visualize_results(FFN_model, 'FFN', train_loader_FFN, 
                                              val_loader_FFN, test_loader_FFN, num_trials, 
-                                             target_FFN, pred_FFN, PATH, fs, device)
+                                             target_FFN, pred_FFN, PATH, fsNew, device)
 
 # GRU
 percentFit_GRU, percentError_GRU = visualize_results(GRU_model, 'GRU', train_loader_GRU, 
                                              val_loader_GRU, test_loader_GRU, num_trials, 
-                                             target_GRU, pred_GRU, PATH, fs, device)
-
-# # Transformer
-# percentFit_Transformer, percentError_Transformer = visualize_results(Transformer_model, 'Transformer', 
-#                                                      train_loader_Transformer, val_loader_Transformer, 
-#                                                      test_loader_Transformer, num_trials, target_Transformer, 
-#                                                      pred_Transformer, PATH, fs, device)
+                                             target_GRU, pred_GRU, PATH, fsNew, device)
 
 # DA-RNN
 percentFit_DARNN, percentError_DARNN = visualize_results(DARNN_model, 'DA-RNN', train_loader_DARNN, 
                                              val_loader_DARNN, test_loader_DARNN, num_trials, 
-                                             target_DARNN, pred_DARNN, PATH, fs, device)
+                                             target_DARNN, pred_DARNN, PATH, fsNew, device)
+
+# All Models
+fitted_histogram(target_FFN, pred_FFN, target_GRU, pred_GRU, target_DARNN, pred_DARNN, PATH)
 
 print("\n\n*** Finished ***")

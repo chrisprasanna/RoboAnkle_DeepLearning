@@ -16,6 +16,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_absolute_error
 from scipy.stats import pearsonr
+import scipy as scipy
 import os
 
 import matplotlib.pyplot as plt
@@ -127,12 +128,14 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
         fig = plt.figure(figsize=(20,10))
         plt.plot(t , Targets[:,i], label='True')
         plt.plot(t , Predictions[:,i], label='Predicted')
-        plt.xlabel('Time [s]')
-        plt.ylabel('Ankle Torque [Nm]')
+        plt.xlabel('Time [s]',fontsize=20)
+        plt.ylabel('Force [N]',fontsize=20)
         plt.xlim(0,t[-1]) # consistent scale
         plt.grid(True)
-        plt.legend()
-        plt.title(f'{model_name}: Test Trial {i+1}')
+        plt.legend(prop={"size":20}, loc='upper left')
+        plt.title(f'{model_name}: Test Trial {i+1}',fontsize=30)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         plt.tight_layout()
         plt.show()
         # Save
@@ -163,9 +166,11 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
     # Now we format the y-axis to display percentage
     ax.yaxis.set_major_formatter(tick.PercentFormatter())
     
-    plt.xlabel('Error [Nm]')
-    plt.title(f'{model_name} Testing Errors: ' + str(meanErr) + ' +/- ' + str(stdErr) + ' Nm')
+    plt.xlabel('Error [N]',fontsize=20)
+    plt.title(f'{model_name} Testing Errors: ' + str(meanErr) + ' +/- ' + str(stdErr) + ' N',fontsize=30)
     plt.grid(True)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
     plt.tight_layout()
     plt.show()
     # Save
@@ -269,12 +274,14 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
         plt.plot(time_tr , train_out, color='blue', label='Train')
         plt.plot(time_val , val_out, color='green', label='Validation')
         plt.plot(time_test , test_out, color='red', label='Test')
-        plt.xlabel('Time [s]')
-        plt.ylabel('Ankle Torque [Nm]')
-        plt.title(f'{model_name}: Full Trial {i+1}')
+        plt.xlabel('Time [s]',fontsize=20)
+        plt.ylabel('Force [N]',fontsize=20)
+        plt.title(f'{model_name}: Full Trial {i+1}',fontsize=30)
         plt.xlim(0,30) 
         plt.grid(True)
-        plt.legend()
+        plt.legend(prop={"size":20}, loc='upper left')
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         plt.tight_layout()
         plt.show()
         # Save
@@ -284,3 +291,50 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
     
     
     return percentFit, percentError
+
+#%% Fitted Histograms
+
+def fitted_histogram(target1, pred1, target2, pred2, target3, pred3, PATH):
+        
+    fig = plt.figure(figsize=(20,10))
+    bins = 30
+    
+    best_fit_line1, bins1 =  fit_line_calc(target1, pred1, bins, 'blue')
+    best_fit_line2, bins2 =  fit_line_calc(target2, pred2, bins, 'green')
+    best_fit_line3, bins3 =  fit_line_calc(target3, pred3, bins, 'orange')
+     
+    plt.plot(bins1, best_fit_line1, label='FFN',color='blue', linewidth=2)
+    plt.plot(bins2, best_fit_line2, label='GRU',color='green', linewidth=2)
+    plt.plot(bins3, best_fit_line3, label='DA-RNN',color='orange', linewidth=2)
+    plt.legend(prop={"size":20}, loc='upper left')
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel('Error [N]',fontsize=20)
+    plt.ylabel('Probability',fontsize=20)
+    plt.title('Error Distribution for all Models',fontsize=30)
+    plt.grid(True)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.tight_layout()
+    plt.show()
+    # Save
+    filename = 'Error Histogram - All Models.png'
+    savepath = os.path.join(PATH, filename) 
+    fig.savefig(savepath, bbox_inches='tight')
+    
+    return
+
+def fit_line_calc(target, pred, bins, c):
+        
+    Targets = np.transpose(np.array(target))
+    Predictions = np.transpose(np.array(pred))
+    T = np.ndarray.flatten(Targets)
+    P = np.ndarray.flatten(Predictions)
+    err = T-P
+    
+    _, bins, _ = plt.hist(err, 20, density=1, alpha=0.5, color=c)
+    
+    mu, sigma = scipy.stats.norm.fit(err)
+    best_fit_line = scipy.stats.norm.pdf(bins, mu, sigma)
+    
+    return best_fit_line, bins
