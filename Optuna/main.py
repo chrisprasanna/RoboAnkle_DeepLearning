@@ -166,12 +166,25 @@ print(" *** Optimizing the Networks...")
 
 torch.cuda.empty_cache() 
 FFN_model, FFN_trial = optimize_hyperparams('FFN', constants)
+filename = f'FFN NN {timestr[:-2]}.pt'
+FFN_PATH = os.path.join(PATH,'FFN',filename) 
+net = FFN_model.state_dict()
+torch.save(net, FFN_PATH)
 
 torch.cuda.empty_cache()
 GRU_model, GRU_trial = optimize_hyperparams('GRU', constants)
+h = GRU_model.init_hidden(batch_size = 1)
+filename = f'GRU NN {timestr[:-2]}.pt'
+GRU_PATH = os.path.join(PATH,'GRU',filename) 
+net = GRU_model.state_dict()
+torch.save(net, GRU_PATH)
 
 torch.cuda.empty_cache()
 DARNN_model, DARNN_trial = optimize_hyperparams('DA-RNN', constants)
+filename = f'DA-RNN NN {timestr[:-2]}.pt'
+DARNN_PATH = os.path.join(PATH,'DA-RNN',filename) 
+net = DARNN_model.state_dict()
+torch.save(net, DARNN_PATH)
 
 #%% Test Trained Network
 
@@ -199,29 +212,6 @@ train_loader_DARNN, val_loader_DARNN, test_loader_DARNN = get_dataLoaders(DARNN_
                                                                     constants, train_bool=False)
 target_DARNN, pred_DARNN, RMSE_DARNN, test_loss_DARNN, pcc_DARNN = test_network(test_loader_DARNN, DARNN_model, 
                                                          'DA-RNN', criterion, PATH, device)
-
-#%% Save Models
-
-print(" *** Saving the Networks...")
-
-# FFN
-filename = f'FFN NN {timestr[:-2]}.pt'
-FFN_PATH = os.path.join(PATH,'FFN',filename) 
-net = FFN_model.state_dict()
-torch.save(net, FFN_PATH)
-
-# GRU
-h = GRU_model.init_hidden(batch_size = 1)
-filename = f'GRU NN {timestr[:-2]}.pt'
-GRU_PATH = os.path.join(PATH,'GRU',filename) 
-net = GRU_model.state_dict()
-torch.save(net, GRU_PATH)
-
-# DA-RNN
-filename = f'DA-RNN NN {timestr[:-2]}.pt'
-DARNN_PATH = os.path.join(PATH,'DA-RNN',filename) 
-net = DARNN_model.state_dict()
-torch.save(net, DARNN_PATH)
 
 
 #%% Visualize Test Data Results
