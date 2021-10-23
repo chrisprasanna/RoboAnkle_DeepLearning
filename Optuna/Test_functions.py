@@ -126,10 +126,10 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
     ######################
     for i in range(0,num_trials):
         fig = plt.figure(figsize=(20,10))
-        plt.plot(t , Targets[:,i], label='True')
-        plt.plot(t , Predictions[:,i], label='Predicted')
+        plt.plot(t , Targets[:,i], label='True', color='black',linewidth=4)
+        plt.plot(t , Predictions[:,i], label='Predicted', color='red',linewidth=4)
         plt.xlabel('Time [s]',fontsize=20)
-        plt.ylabel('Force [N]',fontsize=20)
+        plt.ylabel('Moment [Nm/kg]',fontsize=20)
         plt.xlim(0,t[-1]) # consistent scale
         plt.grid(True)
         plt.legend(prop={"size":20}, loc='upper left')
@@ -166,8 +166,8 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
     # Now we format the y-axis to display percentage
     ax.yaxis.set_major_formatter(tick.PercentFormatter())
     
-    plt.xlabel('Error [N]',fontsize=20)
-    plt.title(f'{model_name} Testing Errors: ' + str(meanErr) + ' +/- ' + str(stdErr) + ' N',fontsize=30)
+    plt.xlabel('Error [Nm/kg]',fontsize=20)
+    plt.title(f'{model_name} Testing Errors: ' + str(meanErr) + ' +/- ' + str(stdErr) + ' Nm/kg',fontsize=30)
     plt.grid(True)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
@@ -270,12 +270,12 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
         
         # Plot
         fig = plt.figure(figsize=(20,10))
-        plt.plot(time , true_vals, color='black', label='True')
-        plt.plot(time_tr , train_out, color='blue', label='Train')
-        plt.plot(time_val , val_out, color='green', label='Validation')
-        plt.plot(time_test , test_out, color='red', label='Test')
+        plt.plot(time , true_vals, color='black', label='True',linewidth=4)
+        plt.plot(time_tr , train_out, color='blue', label='Train',linewidth=4)
+        plt.plot(time_val , val_out, color='green', label='Validation',linewidth=4)
+        plt.plot(time_test , test_out, color='red', label='Test',linewidth=4)
         plt.xlabel('Time [s]',fontsize=20)
-        plt.ylabel('Force [N]',fontsize=20)
+        plt.ylabel('Moment [Nm/kg]',fontsize=20)
         plt.title(f'{model_name}: Full Trial {i+1}',fontsize=30)
         plt.xlim(0,30) 
         plt.grid(True)
@@ -294,22 +294,25 @@ def visualize_results(model, model_name, train_loader, val_loader, test_loader,
 
 #%% Fitted Histograms
 
-def fitted_histogram(target1, pred1, target2, pred2, target3, pred3, PATH):
-        
+def fitted_histogram(target1, pred1, target2, pred2, target3, pred3, target4, pred4, PATH):
+    
+    # with polynomial     
     fig = plt.figure(figsize=(20,10))
     bins = 30
     
     best_fit_line1, bins1 =  fit_line_calc(target1, pred1, bins, 'blue')
     best_fit_line2, bins2 =  fit_line_calc(target2, pred2, bins, 'green')
     best_fit_line3, bins3 =  fit_line_calc(target3, pred3, bins, 'orange')
-     
-    plt.plot(bins1, best_fit_line1, label='FFN',color='blue', linewidth=2)
-    plt.plot(bins2, best_fit_line2, label='GRU',color='green', linewidth=2)
-    plt.plot(bins3, best_fit_line3, label='DA-RNN',color='orange', linewidth=2)
+    best_fit_line4, bins4 =  fit_line_calc(target4, pred4, bins, 'red')
+    
+    plt.plot(bins4, best_fit_line4, label='Polynomial',color='red', linewidth=4)
+    plt.plot(bins1, best_fit_line1, label='FFN',color='blue', linewidth=4)
+    plt.plot(bins2, best_fit_line2, label='GRU',color='green', linewidth=4)
+    plt.plot(bins3, best_fit_line3, label='DA-RNN',color='orange', linewidth=4)
     plt.legend(prop={"size":20}, loc='upper left')
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
-    plt.xlabel('Error [N]',fontsize=20)
+    plt.xlabel('Error [Nm/kg]',fontsize=20)
     plt.ylabel('Probability',fontsize=20)
     plt.title('Error Distribution for all Models',fontsize=30)
     plt.grid(True)
@@ -319,6 +322,33 @@ def fitted_histogram(target1, pred1, target2, pred2, target3, pred3, PATH):
     plt.show()
     # Save
     filename = 'Error Histogram - All Models.png'
+    savepath = os.path.join(PATH, filename) 
+    fig.savefig(savepath, bbox_inches='tight')
+    
+    # just NNs
+    fig = plt.figure(figsize=(20,10))
+    bins = 30
+    
+    best_fit_line1, bins1 =  fit_line_calc(target1, pred1, bins, 'blue')
+    best_fit_line2, bins2 =  fit_line_calc(target2, pred2, bins, 'green')
+    best_fit_line3, bins3 =  fit_line_calc(target3, pred3, bins, 'orange')
+    
+    plt.plot(bins1, best_fit_line1, label='FFN',color='blue', linewidth=4)
+    plt.plot(bins2, best_fit_line2, label='GRU',color='green', linewidth=4)
+    plt.plot(bins3, best_fit_line3, label='DA-RNN',color='orange', linewidth=4)
+    plt.legend(prop={"size":20}, loc='upper left')
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel('Error [Nm/kg]',fontsize=20)
+    plt.ylabel('Probability',fontsize=20)
+    plt.title('Error Distribution for all Models',fontsize=30)
+    plt.grid(True)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.tight_layout()
+    plt.show()
+    # Save
+    filename = 'Error Histogram - All NNs.png'
     savepath = os.path.join(PATH, filename) 
     fig.savefig(savepath, bbox_inches='tight')
     

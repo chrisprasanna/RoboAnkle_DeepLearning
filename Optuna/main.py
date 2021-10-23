@@ -21,6 +21,7 @@ import sys
 from DL_functions import loadmat
 from Optuna_functions import optimize_hyperparams, get_dataLoaders
 from Test_functions import test_network, visualize_results, fitted_histogram
+from Linear_Regression import train_poly
 
 from GPUtil import showUtilization as gpu_usage
 
@@ -79,8 +80,8 @@ amsgrad = False
 criterion = nn.MSELoss()
 
 # Training Hyperparameters
-num_epochs = 1000
-optuna_trials = 500
+num_epochs = 3
+optuna_trials = 1
 batch_size = num_trials
 optuna_timeout = None
 
@@ -111,6 +112,7 @@ directory = f'{timestr[:-2]}'
 
 os.makedirs(os.path.join(cwd, 'Results',directory)) 
 
+os.makedirs(os.path.join(cwd, 'Results',directory,'Polynomial')) 
 os.makedirs(os.path.join(cwd, 'Results',directory,'FFN')) 
 os.makedirs(os.path.join(cwd, 'Results',directory,'GRU'))  
 os.makedirs(os.path.join(cwd, 'Results',directory,'DA-RNN')) 
@@ -142,7 +144,8 @@ constants = {'device':device,
              'number of optuna trials':optuna_trials,
              'optuna timeout':optuna_timeout,
              'dataset': Data, 
-             'pred_horizon': prediction_horizon
+             'pred_horizon': prediction_horizon, 
+             'sub-sample freq': fsNew
              }
 
 # Independent Variables
@@ -152,6 +155,10 @@ constants = {'device':device,
 #   - scheduler
 #   - optimizer
 #   - sequence length
+
+#%% Polynominal Fit
+
+best_poly, poly_rmse, target_poly, pred_poly = train_poly(constants)
 
 #%% Optimize Hyperparameters for all NNs
 
@@ -213,6 +220,13 @@ train_loader_DARNN, val_loader_DARNN, test_loader_DARNN = get_dataLoaders(DARNN_
 target_DARNN, pred_DARNN, RMSE_DARNN, test_loss_DARNN, pcc_DARNN = test_network(test_loader_DARNN, DARNN_model, 
                                                          'DA-RNN', criterion, PATH, device)
 
+# remove pickle files
+dir_name = os.getcwd()
+test = os.listdir(dir_name)
+for item in test:
+    if item.endswith(".pickle"):
+        os.remove(os.path.join(dir_name, item))
+
 
 #%% Visualize Test Data Results
 
@@ -234,6 +248,6 @@ percentFit_DARNN, percentError_DARNN = visualize_results(DARNN_model, 'DA-RNN', 
                                              target_DARNN, pred_DARNN, PATH, fsNew, device)
 
 # All Models
-fitted_histogram(target_FFN, pred_FFN, target_GRU, pred_GRU, target_DARNN, pred_DARNN, PATH)
+fitted_histogram(target_FFN, pred_FFN, target_GRU, pred_GRU, target_DARNN, pred_DARNN, target_poly, pred_poly, PATH)
 
 print("\n\n*** Finished ***")

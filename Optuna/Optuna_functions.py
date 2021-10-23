@@ -40,7 +40,7 @@ def define_model(trial, model_name, sequence_length, device, constants):
     # Which model type are we optimizing?
     if model_name == 'FFN':
         num_layers = trial.suggest_int("num_layers", 1, 3)
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 11)
+        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 9)
         hidden_size = 2**hidden_size_power
         dropout = trial.suggest_float("dropout", 0.1, 0.5)  
         
@@ -48,14 +48,14 @@ def define_model(trial, model_name, sequence_length, device, constants):
         
     elif model_name == 'GRU':
         num_layers = trial.suggest_int("num_layers", 1, 3)
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 11)
+        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 9)
         hidden_size = 2**hidden_size_power
         dropout = trial.suggest_float("dropout", 0.1, 0.5)  
         
         model = GRU(input_size, hidden_size, output_size, num_layers, sequence_length, dropout, device)     
         
     elif model_name == 'DA-RNN':
-        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 11)
+        hidden_size_power = trial.suggest_int("hidden_size_power", 4, 9)
         hidden_size = 2**hidden_size_power
         P_power = trial.suggest_int("decoder_size_power", 4, 7)
         P = 2**P_power
@@ -239,7 +239,9 @@ def objective(trial, model_name, constants):
     start = timer.time()
     
     # Suggest a sequence length
-    sequence_length = trial.suggest_int("sequence_length", 2, 25, log=False) # one step ~= 150 points
+    # one step ~= 153 points
+    # x = (sub sample freq/120)*(step length/2) = (30/120)*(153/2)
+    sequence_length = trial.suggest_int("sequence_length", 2, 20, log=False) 
     
     # Generate the Model
     model = define_model(trial, model_name, sequence_length, device, constants).to(device)
