@@ -1,0 +1,26 @@
+GRU Study statistics: 
+  Number of finished trials:  1000
+  Number of pruned trials:  869
+  Number of complete trials:  131
+
+GRU Best trial:
+
+  Validation Obj. Func. Value:  0.002841473587424211
+
+  GRU Params: 
+    sequence_length: 15
+    num_layers: 2
+    hidden_size_power: 9
+    dropout: 0.1994973979838621
+    noiseSTD: 0.1003122857551797
+    batch_size_power: 4
+    learning_rate: 0.00013214704358940568
+    weight_decay: 0.018667886066384448
+    gamma: 0.5594744321020818
+
+Test Loss: 0.074409
+
+RMSE: 0.052717 Nm/kg
+
+PCC: 0.992713
+

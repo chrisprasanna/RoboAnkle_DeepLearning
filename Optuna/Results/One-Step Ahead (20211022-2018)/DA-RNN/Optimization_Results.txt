@@ -1,0 +1,25 @@
+DA-RNN Study statistics: 
+  Number of finished trials:  1000
+  Number of pruned trials:  836
+  Number of complete trials:  164
+
+DA-RNN Best trial:
+
+  Validation Obj. Func. Value:  0.0016857108744063778
+
+  DA-RNN Params: 
+    sequence_length: 18
+    hidden_size_power: 7
+    decoder_size_power: 4
+    noiseSTD: 0.10034244596602064
+    batch_size_power: 4
+    learning_rate: 0.0027751037219410695
+    weight_decay: 0.0031492535603884764
+    gamma: 0.13221610775153528
+
+Test Loss: 0.068384
+
+RMSE: 0.049626 Nm/kg
+
+PCC: 0.992305
+
