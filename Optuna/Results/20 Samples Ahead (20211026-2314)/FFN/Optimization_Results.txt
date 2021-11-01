@@ -1,0 +1,26 @@
+FFN Study statistics: 
+  Number of finished trials:  1000
+  Number of pruned trials:  868
+  Number of complete trials:  132
+
+FFN Best trial:
+
+  Validation Obj. Func. Value:  0.0037915726981895127
+
+  FFN Params: 
+    sequence_length: 20
+    num_layers: 3
+    hidden_size_power: 9
+    dropout: 0.10024079005395294
+    noiseSTD: 0.10041945377622269
+    batch_size_power: 4
+    learning_rate: 4.63815551990378e-05
+    weight_decay: 0.0731450918676361
+    gamma: 0.373027555344617
+
+Test Loss: 0.644878
+
+RMSE: 0.157717 Nm/kg
+
+PCC: 0.914430
+
