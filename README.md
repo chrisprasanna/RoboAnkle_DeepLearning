@@ -21,10 +21,6 @@ This software was developed to build models that can estimate and predict powere
 
   
 
-This deep learning pipeline is currently being expanded to train deep neural network models that characterize multiple input, multiple output (MIMO) robotic prosthesis systems, specifically for the [COBRA system](https://github.com/ajanders/cobra-knee). This is in contrast to the previously developed models that have multiple inputs from wearable sensors and only a single output (i.e., prosthetic ankle torque). Training accurate MIMO system models using deep learning enables us to run forward simulations (i.e., rollouts). In other words, we can simulate the response of the system to arbitrary inputs at various initial states. This tool would allow us to test and tune various prosthesis control methods and configurations prior to implementation. In addition, it also provides a means for experimentation and exploration of control actions without risking the safety of the prosthesis user.
-
-  
-
 ## Table of Contents
 
 - [Installation](#installation)
@@ -59,6 +55,8 @@ This deep learning pipeline is currently being expanded to train deep neural net
 5. Run the following command in the Anaconda prompt:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;  ````conda activate NAME````
 
+&nbsp;&nbsp;&nbsp;&nbsp; This activates the conda environment containing all the required packages and their versions. 
+
 6. Run the following command in the Anaconda prompt:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;  ````pip install -e .````<br/>
 
@@ -68,7 +66,7 @@ This deep learning pipeline is currently being expanded to train deep neural net
 
 ## Usage
 
-The primary neural network training and evaluation pipeline script is scripts/main_dnn_training_pipeline.py. The main pipeline script calls functions from packages in the src/ folder, including data processing, training protocols, and other computations. Intermediate neural networks during training are saved as .pt files to the results/ folder. In addition, fully-trained neural networks from Optuna trials are saved as pickle files to the results/ folder. The final test results, including test performance metrics and the best-performing hyperparameters in the Optuna hyperparameter optimization, are also saved as a pickle file to this folder. Finally, the test results are saved to a multi-page pdf located in the /results folder. This repository was set up using practices described the [Good Research Code Handbook](https://goodresearch.dev/index.html#).
+The primary neural network training and evaluation pipeline script is scripts/main_dnn_training_pipeline.py. The main pipeline script calls functions from packages in the src/ folder, including data processing, training protocols, and other computations. Intermediate neural networks during training are saved as .pt files to the results/ folder. In addition, fully-trained neural networks from Optuna trials are saved as pickle files to the results/ folder. The final test results, including test performance metrics and the best-performing hyperparameters in the Optuna hyperparameter optimization, are also saved as a pickle file to this folder. Finally, the test results are saved to a multi-page pdf located in the /results folder. This repository was set up using practices described in the [Good Research Code Handbook](https://goodresearch.dev/index.html#).
 
   
 
@@ -102,9 +100,9 @@ There are a few Python variables that call out input feature and target output v
 
 - **data**: Where you put raw data for your project. Unfortunately, we are not able to share our raw data for administrative/privacy reasons, but I still thought it would be cool to share the code.
 
-- **results**: Where you put results, including checkpoints, hdf5 files, pickle files, as well as figures and tables.
+- **results**: Where you put results, including checkpoints, pickle files, as well as figures and tables.
 
-- **scripts**: Where you put the main executable scripts - Python and bash alike - as well as .ipynb notebooks.
+- **scripts**: Where you put the main executable scripts - Python and bash alike - as well as any .ipynb notebooks.
 
 - **src**: Python modules for the project. This is the kind of python code that you import.
 
@@ -212,19 +210,23 @@ In progress.
 
 [comment]:<>  (Go the extra mile and write tests for your application. Then provide examples on how to run them here.)
 
+
+## Future Work
+
+This deep learning pipeline is currently being expanded to train deep neural network models that characterize multiple input, multiple output (MIMO) robotic prosthesis systems, specifically for the [COBRA system](https://github.com/ajanders/cobra-knee). This is in contrast to the previously developed models that have multiple inputs from wearable sensors and only a single output (i.e., prosthetic ankle torque). Training accurate MIMO system models using deep learning enables us to run forward simulations (i.e., rollouts). In other words, we can simulate the response of the system to arbitrary inputs at various initial states. This tool would allow us to test and tune various prosthesis control methods and configurations prior to implementation. In addition, it also provides a means for experimentation and exploration of control actions without risking the safety of the prosthesis user.
   
 
 ## Credits
 
   
 
-- Patrick J Mineault & The Good Research Code Handbook Community (2021). The Good Research Code Handbook. Zenodo. [doi:10.5281/zenodo.5796873](doi:10.5281/zenodo.5796873)
+- Patrick J Mineault & The Good Research Code Handbook Community (2021). [The Good Research Code Handbook](https://goodresearch.dev/index.html). Zenodo. [doi:10.5281/zenodo.5796873](doi:10.5281/zenodo.5796873)
 
 - Anthony Anderson. "COBRA-DeepLearning-2.0". (2022). 
 
-- Takuya Akiba, Shotaro Sano, Toshihiko Yanase, Takeru Ohta,and Masanori Koyama. 2019. Optuna: A Next-generation Hyperparameter Optimization Framework. In KDD.
+- Takuya Akiba, Shotaro Sano, Toshihiko Yanase, Takeru Ohta,and Masanori Koyama. 2019. [Optuna: A Next-generation Hyperparameter Optimization Framework](https://arxiv.org/abs/1907.10902). In KDD.
 
-- Yao Qin, Dongjin Song, Haifeng Chen, Wei Cheng, Guofei Jiang, Garrison W. Cottrell. ["A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction"](https://arxiv.org/pdf/1704.02971.pdf). arXiv preprint arXiv:1704.02971 (2017).
+- Yao Qin, Dongjin Song, Haifeng Chen, Wei Cheng, Guofei Jiang, Garrison W. Cottrell. [A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction](https://arxiv.org/pdf/1704.02971.pdf). arXiv preprint arXiv:1704.02971 (2017).
 
 - Zhenye-Na. ["PyTorch Implementation of DA-RNN"](http://www.google.fr/  "Named link title"). (2018).
 
