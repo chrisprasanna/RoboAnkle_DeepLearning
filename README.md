@@ -33,6 +33,8 @@ This software was developed to build models that can estimate and predict powere
 
 - [Tests](#tests)
 
+- [Future Work](#future-work)
+
 - [Credits](#credits)
 
 - [License](#license)
