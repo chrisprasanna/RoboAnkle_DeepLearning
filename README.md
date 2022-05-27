@@ -52,13 +52,11 @@ This deep learning pipeline is currently being expanded to train deep neural net
 3. Navigate to your working directory using the cd command
 
 4. Run the following command in the Anaconda prompt:<br/>
-
 &nbsp;&nbsp;&nbsp;&nbsp;  ````conda env create --NAME recoveredenv --file environment.yml````<br/>
 
 &nbsp;&nbsp;&nbsp;&nbsp;where NAME needs to be changed to the name of the conda virtual environment for this project. This environment contains all the package installations and dependencies for this project.
 
 5. Run the following command in the Anaconda prompt:<br/>
-
 &nbsp;&nbsp;&nbsp;&nbsp;  ````conda activate NAME````
 
 6. Run the following command in the Anaconda prompt:<br/>
@@ -137,6 +135,8 @@ There are a few Python variables that call out input feature and target output v
 - Dual-stage attention-based gated recurrent unit (DA-GRU)
 
 - Implementation of a hyperparameter optimization protocol via the Optuna Python library.
+
+- Options for long-term time series forecasting
 
 - Data preprocessing modules (e.g., splitting, resampling, normalization, etc.)
 
