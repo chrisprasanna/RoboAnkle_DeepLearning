@@ -1,7 +1,4 @@
 """
-Created on Fri Feb 11 14:47:10 2022
-
-@authors: Chris Prasanna and Anthony Anderson
 
 The purpose of these scripts is to create an Optuna project to optimize
 the hyperparameters for several neural network models. These functions are used

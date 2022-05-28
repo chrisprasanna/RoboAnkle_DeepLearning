@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed Mar  2 13:39:02 2022
 
-@author: Anthony Anderson & Chris Prasanna
+This file contains all functions for running a DNN training and validation
+pipeline. This includes preprocessing data, setting up optimizers, setting up
+an early stopping protocol, and looping through epochs and batches to train and
+validate a DNN model. 
 
 """
 
@@ -261,6 +262,9 @@ def train_neural_network(train_set, model, model_type, optuna_flag, trial, epoch
                 h = h.detach() # detach hidden in between batches
             else:
                 model_prediction = model(features.float())
+                
+            # Remove model prediction dimensions of size=1
+            model_prediction = torch.squeeze(model_prediction)
         
             # Compute loss and record
             loss_object = criterion() # instantiate loss class 
@@ -277,9 +281,9 @@ def train_neural_network(train_set, model, model_type, optuna_flag, trial, epoch
             
             # Update TQDM progress bar
             if optuna_flag:
-                loop.set_description(f"{model_type} Trial {trial.number} Epoch [{epoch + 1}/{number_of_epochs}]")
+                loop.set_description(f"{model_type} Trial {trial.number+1} Epoch [{epoch+1}/{number_of_epochs}]")
             else:
-                loop.set_description(f"{model_type} Epoch [{epoch + 1}/{number_of_epochs}]")
+                loop.set_description(f"{model_type} Epoch [{epoch+1}/{number_of_epochs}]")
             loop.set_postfix(loss=loss.item(), trial=walking_trial+1)
             
             # Delete intermediate variables and empty cache
@@ -346,6 +350,9 @@ def validate_neural_network(model, model_type, val_set, criterion, constants):
                 h_val = h_val.detach() # detach hidden in between batches
             else:
                 model_prediction = model(features.float())
+                
+            # Remove model prediction dimensions of size=1
+            model_prediction = torch.squeeze(model_prediction)
         
             # Compute loss and record
             loss_object = criterion() # instantiate loss class
@@ -414,6 +421,7 @@ def neural_network_training_loop(model, train_set, val_set, model_type, optimize
     
     # Unpack constants
     number_of_epochs = constants['max number of epochs']
+    early_stopping_patience = constants['early stopping patience']
     
     # Pre-allocate
     validation_MSE_values = []
@@ -426,7 +434,6 @@ def neural_network_training_loop(model, train_set, val_set, model_type, optimize
     results_directory = os.path.join(project_directory, 'results')    
     
     # Set up early stopping pipeline
-    early_stopping_patience = 10
     checkpoint_filepath = os.path.join(results_directory, f"{model_type}_checkpoint.pt")
     early_stopping = EarlyStopping(patience=early_stopping_patience, verbose=True, path=checkpoint_filepath)
     

@@ -1,12 +1,10 @@
 """
-Created on Tue Feb 15 09:49:23 2022
-
-@author: Chris Prasanna
 
 This file contains functions related to initializing and defining model 
 architectures to be trained and evaluated. 
 The primary purpose of all of these functions is to return a class object 
 defining the model to our primary training and analysis scripts.
+
 """
 
 from src import neural_network_classes

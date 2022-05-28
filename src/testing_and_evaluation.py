@@ -1,7 +1,10 @@
 """
-Created on Thu Apr 28 11:24:30 2022
 
-@author: Chris Prasanna
+This file contains all the functions necessary to test and evaluate a trained 
+DNN model. This includes preprocesing the test data, computing test metrics, 
+generating DNN predictions on a test dataset, and visualizing the prediction 
+results. 
+
 """
 
 from src import data_processing
@@ -191,6 +194,9 @@ def test_neural_network(model, model_type, test_set, constants, criterion, test_
                 h_test = h_test.detach() # detach hidden in between batches
             else:
                 model_prediction = model(features.float())
+                
+            # Remove model prediction dimensions of size=1
+            model_prediction = torch.squeeze(model_prediction)
         
             # Compute loss and record
             loss_object = criterion() # instantiate loss class
@@ -239,7 +245,7 @@ def generate_figures_in_multipage_pdf(filename, figs):
 
 # %%
 
-def visualize_COBRA_test_results(model_type, test_results, test_walking_trials, target_signal_names, sequence_length):
+def visualize_test_results(model_type, test_results, test_walking_trials, target_signal_names, sequence_length):
     """
     This function generates time series plots of the target signals and model
     prediction output signals. Each figure contains a single output variable. 
@@ -283,11 +289,11 @@ def visualize_COBRA_test_results(model_type, test_results, test_walking_trials, 
         # Get output signal
         output = target_signal_names[output_idx]
         
-        # Set up figure
-        fig, axs = plt.subplots(nrows=2, ncols=2, sharex=True, sharey=False, figsize=(20,12))
-        
         # Loop through test trials
         for trial_idx in range(len(test_walking_trials)):
+            
+            # Set up figure
+            fig, ax = plt.subplots(figsize=(20,12))
             
             # Define trial
             trial = test_walking_trials[trial_idx]
@@ -296,16 +302,12 @@ def visualize_COBRA_test_results(model_type, test_results, test_walking_trials, 
             targets = test_results[trial]['Targets']
             predictions = test_results[trial]['Predictions']
             
-            # Define subplot
-            subplot_idx = subplot_indices[trial_idx]
-            
             # Define time vector
             total_timesteps = len(predictions[output]) + sequence_length + 1
             delta_time = 30 / total_timesteps
             time = np.linspace(start=delta_time*sequence_length, stop=30, num=len(predictions[output]))
             
             # Plot
-            ax = axs[subplot_idx[0], subplot_idx[1]]
             ax.plot(time, targets[output], color='black', label='Target', linewidth=2)
             ax.plot(time, predictions[output], color='blue', label='Prediction', linewidth=2)
             ax.set_title(f'{trial}',fontsize=25)
@@ -313,18 +315,18 @@ def visualize_COBRA_test_results(model_type, test_results, test_walking_trials, 
             ax.tick_params(axis='x', labelsize=20)
             ax.tick_params(axis='y', labelsize=20)
         
-        # Common titles
-        fig.suptitle(f'{model_type} {output} Predictions on Test Dataset',fontsize=30)
-        fig.supxlabel('Time (s)', fontsize=25)
-        fig.supylabel(f'{output}', fontsize=25)
-        # Legend
-        lines, labels = fig.axes[-1].get_legend_handles_labels()    
-        fig.legend(lines, labels, loc='lower right', fontsize=20, ncol=2)
-        # Format
-        fig.tight_layout(rect=[0.02, 0.03, 0.95, 0.97])
-        plt.show()
-        # Collect figure
-        figs.append(fig)
+            # Common titles
+            fig.suptitle(f'{model_type} {output} Predictions on Test Dataset ({trial})',fontsize=28)
+            fig.supxlabel('Time (s)', fontsize=25)
+            fig.supylabel(f'{output}', fontsize=25)
+            # Legend
+            lines, labels = fig.axes[-1].get_legend_handles_labels()    
+            fig.legend(lines, labels, loc='lower right', fontsize=20, ncol=2)
+            # Format
+            fig.tight_layout(rect=[0.02, 0.03, 0.95, 0.97])
+            plt.show()
+            # Collect figure
+            figs.append(fig)
     
     # Define results file directory
     project_directory = os.path.dirname(os.getcwd())
@@ -383,6 +385,6 @@ def main_test(model, model_type, data_set, constants, sequence_length):
     test_results = test_neural_network(model, model_type, processed_test_set, constants, criterion, test_walking_trials, target_signal_names)
     
     # Visualize Results
-    visualize_COBRA_test_results(model_type, test_results, test_walking_trials, target_signal_names, sequence_length)
+    visualize_test_results(model_type, test_results, test_walking_trials, target_signal_names, sequence_length)
     
     return test_results

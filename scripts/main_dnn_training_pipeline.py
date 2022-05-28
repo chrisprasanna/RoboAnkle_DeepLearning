@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed Feb 2 13:25:41 2022
 
 This is the main pipeline for building, training, and testing the DNNs. 
 
 @author: Chris Prasanna
+
 """
 
 from src import set_parameters
@@ -23,7 +22,7 @@ del f
 
 # %% Choose Model
 
-model_type = 'FNN' # Choices: 'FFN', 'GRU', 'DA-GRU'
+model_type = 'DA-GRU' # Choices: 'FFN', 'GRU', 'DA-GRU'
 
 # %% Define Constants and Hyperparameters
 

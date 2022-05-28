@@ -1,7 +1,4 @@
 """
-Created on Tue Feb 15 09:48:28 2022
-
-@author: Chris Prasanna
 
 This file contains custom neural network class objects that can be called to
 initialize a model or pass input information through the model to return an 
@@ -10,6 +7,7 @@ The purpose of these class objects is to contain model information and
 functionality to be passed to different training and evaluation scripts. 
 
 DA-RNN Paper: https://arxiv.org/abs/1704.02971
+
 """
 
 import torch

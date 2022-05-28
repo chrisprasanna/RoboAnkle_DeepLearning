@@ -1,7 +1,9 @@
 """
-Created on Fri Apr 29 10:34:14 2022
 
-@author: Chris Prasanna
+These functions are responsible for saving important data from the DNN training 
+and testing protocols such as trained models, model parameters, training 
+hyperparameters, and model prediction results on the test dataset. 
+
 """
 
 import os

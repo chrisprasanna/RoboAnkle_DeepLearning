@@ -1,12 +1,10 @@
 """
-Created on Wed Feb  9 10:01:23 2022
-
-@author: Chris Prasanna
 
 This file contains functions related to initializing the constants and 
 hyperparameters that are used throughout DNN training and evaluation scripts. 
 The primary purpose of all of these functions is to return a dict structure to 
 our primary analysis scripts.
+
 """
 
 import torch.nn as nn
@@ -29,7 +27,8 @@ def get_constants(device='cpu',
                   optuna_timeout=None,
                   prediction_horizon=1,
                   fs=1000,
-                  fsNew=30
+                  fsNew=30,
+                  early_stopping_patience=5
                   ):
     """
     Set constants (parameters not optimized with Optuna) and return as a 
@@ -108,6 +107,10 @@ def get_constants(device='cpu',
         differently acording to fsNew. A Fourier method is used so the time
         series signals must be periodic. 
         The default is 30.
+    early_stopping_Patience : int
+        This is the number of epochs without improvement after which training 
+        will be early stopped. A larger patience means that an experiment will 
+        wait longer before stopping an experiment.
 
     Returns
     -------
@@ -135,7 +138,8 @@ def get_constants(device='cpu',
                  'optuna timeout': optuna_timeout,
                  'prediction horizon': prediction_horizon,
                  'original sample freq': fs,
-                 'sub-sample freq': fsNew
+                 'sub-sample freq': fsNew,
+                 'early stopping patience': early_stopping_patience
                  }
 
     return constants

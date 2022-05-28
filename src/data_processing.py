@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed Mar  2 13:54:21 2022
-
-@author: Chris Prasanna
 
 This module will contain functions for sub-sampling data, adding noise to data,
 and splitting data into train/validate/test sets.
