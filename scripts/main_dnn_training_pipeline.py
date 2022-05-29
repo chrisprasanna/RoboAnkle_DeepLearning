@@ -13,6 +13,7 @@ from src import testing_and_evaluation
 from src import save_results
 
 import pickle
+import torch
 
 # %% Load experimental data
 
@@ -22,9 +23,12 @@ del f
 
 # %% Define Constants and Hyperparameters
 
+# Set Device
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 # This function gets all constants used in the script (metadata, filepaths,
 # number of trials, timesteps per trial, etc.)
-constants = set_parameters.get_constants(input_size=6, output_size=1, optuna_trials=100, num_timestepsPerTrial=3600, fs=120)
+constants = set_parameters.get_constants(device=device, input_size=6, output_size=1, optuna_trials=100, num_timestepsPerTrial=3600, fs=120)
 
 # This function gets all hyperparameter ranges used in the Optuna optimization
 hyperparameter_ranges = set_parameters.get_hyperparameter_ranges()
