@@ -20,10 +20,6 @@ with open('../data/data_structure.pkl', 'rb') as f:
     data_structure = pickle.load(f)
 del f
 
-# %% Choose Model
-
-model_type = 'DA-GRU' # Choices: 'FFN', 'GRU', 'DA-GRU'
-
 # %% Define Constants and Hyperparameters
 
 # This function gets all constants used in the script (metadata, filepaths,
@@ -35,25 +31,25 @@ hyperparameter_ranges = set_parameters.get_hyperparameter_ranges()
 
 # %% Cut data into train vs test sets
 
-# these are currently returned as dictionaries that map
-# file names to pandas data frames. We could also turn them into
-# tensors here and chop them up into sequences later.
 train_set, validation_set, test_set = data_processing.train_val_test_split_data(data_structure, split_percentages=[0.70,0.15,0.15])
 
-# %% Optimize Hyperparameters
+# %% Choose and Train Model(s)
 
-optimized_model, best_trial = optuna_functions.optimize_hyperparameters(
-    model_type=model_type, train_set=train_set, val_set=validation_set, constants=constants, hyperparameter_ranges=hyperparameter_ranges)
+model_types = ('FFN', 'GRU', 'DA-GRU')
 
-# %% Test Model(s)
+for model_type in model_types:
 
-# Retrieve sequence length from best neural network
-sequence_length = best_trial.params['sequence length']
+    ## Optimize Hyperparameters
+    optimized_model, best_trial = optuna_functions.optimize_hyperparameters(
+        model_type=model_type, train_set=train_set, val_set=validation_set, constants=constants, hyperparameter_ranges=hyperparameter_ranges)
+    
+    ## Retrieve sequence length from best neural network
+    sequence_length = best_trial.params['sequence length']
+    
+    ## Compute & visualize test results
+    test_results = testing_and_evaluation.main_test(model=optimized_model, model_type=model_type, data_set=test_set, constants=constants, sequence_length=sequence_length)
+    
+    ## Save Data / Results
+    save_results.main_save(model_type=model_type, optimized_model=optimized_model, test_results=test_results)
 
-# Compute & visualize test results
-test_results = testing_and_evaluation.main_test(model=optimized_model, model_type=model_type, data_set=test_set, constants=constants, sequence_length=sequence_length)
-
-# %% Save Data / Results
-
-save_results.main_save(model_type=model_type, optimized_model=optimized_model, test_results=test_results)
 print("\n\n*** Finished ***")

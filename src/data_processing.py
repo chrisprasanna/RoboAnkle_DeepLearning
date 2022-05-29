@@ -140,7 +140,7 @@ def get_lookback_windows(data_structure, sequence_length, constants):
     and target signals while also defining lookback windows for the feature signals.
     A prediction horizon can also be included to train models that predict multiple 
     samples into the future. Note that the column names of the pandas dataframes
-    in the data_structure input are specific to the COBRA project. If you use 
+    in the data_structure input are specific to the PAFP project. If you use 
     this code for a different project, these column names will need to be edited. 
 
     Parameters
@@ -221,9 +221,7 @@ def normalize_data(features, targets, constants, is_training_set):
     This function defines the data scaling protocol that normalizes each signal
     (input and target) based off their maximum and minimum values found within
     the training dataset. All signals are scaled to [0,1]. This definition 
-    includes functionality for both training and non-training datasets. Note that
-    target signals are normalized since the neural networks predict multiple output
-    signals (i.e., MIMO). 
+    includes functionality for both training and non-training datasets. 
 
     Parameters
     ----------

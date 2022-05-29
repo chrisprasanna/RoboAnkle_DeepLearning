@@ -2,8 +2,7 @@
 
 The purpose of these scripts is to create an Optuna project to optimize
 the hyperparameters for several neural network models. These functions are used
-in the main train_test_ann_pipeline.py to develop neural network models to
-tune controller gains for COBRA in a simulation environment.
+in the main script to develop neural network models.
 
 """
 # %% Imports

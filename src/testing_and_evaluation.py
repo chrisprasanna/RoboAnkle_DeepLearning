@@ -249,8 +249,8 @@ def visualize_test_results(model_type, test_results, test_walking_trials, target
     """
     This function generates time series plots of the target signals and model
     prediction output signals. Each figure contains a single output variable. 
-    Each figure holds subplots, each representing a different walking trial
-    within the test dataset. Figures are then saved locally. 
+    Each figure represents a different walking trial within the test dataset. 
+    Figures are then saved locally. 
 
     Parameters
     ----------
@@ -277,8 +277,15 @@ def visualize_test_results(model_type, test_results, test_walking_trials, target
     None.
 
     """
-    # Define order to loop through subplots
-    subplot_indices = [[0,0], [0,1], [1,0], [1,1]]
+    
+    # Set model prediction plot color based on type of DNN model
+    colors = {
+        'FFN' : 'blue',
+        'GRU' : 'green',
+        'DA-GRU' : 'orange'
+        }
+    default = 'red'
+    color = colors.get(model_type,default)
     
     # Pre-allocate
     figs = []
@@ -309,7 +316,7 @@ def visualize_test_results(model_type, test_results, test_walking_trials, target
             
             # Plot
             ax.plot(time, targets[output], color='black', label='Target', linewidth=2)
-            ax.plot(time, predictions[output], color='blue', label='Prediction', linewidth=2)
+            ax.plot(time, predictions[output], color=color, label='Prediction', linewidth=2)
             ax.set_title(f'{trial}',fontsize=25)
             ax.grid(True)
             ax.tick_params(axis='x', labelsize=20)

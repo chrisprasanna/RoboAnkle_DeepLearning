@@ -87,12 +87,11 @@ def get_constants(device='cpu',
         Stop Optuna study after the given number of second(s). If this argument 
         is set to None, the study is executed without time limitation. 
         The default is None.
-    Data : dict, optional
-        Data structure from "import_data_structure" function. 
-        This dictionary has keys for "data", "metadata", and "file names".
-        "file names" links to a list of file names. "data" and "metadata" link
-        to additional dictionaries where file names are keys and values are
-        Pandas dataframes with data and metadata, respectively.
+    Data : dict, optional 
+        This dictionary has keys for "data" and "file names".
+        "file names" links to a list of file names. "data" links to additional
+        dictionaries where file names are keys and values are Pandas dataframes 
+        with data and metadata, respectively. 
         The default is a blank dictionary.
     prediction_horizon : int, optional
         How many timesteps/samples ahead the DNN model predicts into the 
