@@ -50,7 +50,7 @@ This software was developed to build models that can estimate and predict powere
 3. Navigate to your working directory using the cd command
 
 4. Run the following command in the Anaconda prompt:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;  ````conda env create --NAME recoveredenv --file environment.yml````<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;  ````conda env create --name NAME --file environment.yml````<br/>
 
 &nbsp;&nbsp;&nbsp;&nbsp;where NAME needs to be changed to the name of the conda virtual environment for this project. This environment contains all the package installations and dependencies for this project.
 

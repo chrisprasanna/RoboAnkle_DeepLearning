@@ -40,6 +40,7 @@ train_set, validation_set, test_set = data_processing.train_val_test_split_data(
 # %% Choose and Train Model(s)
 
 model_types = ('FFN', 'GRU', 'DA-GRU')
+test_results_dict = {}
 
 for model_type in model_types:
 
@@ -55,5 +56,8 @@ for model_type in model_types:
     
     ## Save Data / Results
     save_results.main_save(model_type=model_type, optimized_model=optimized_model, test_results=test_results)
+    
+    ## Store Results to Dictionary
+    test_results_dict[model_type] = test_results
 
 print("\n\n*** Finished ***")
