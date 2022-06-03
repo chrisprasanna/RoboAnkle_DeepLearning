@@ -203,8 +203,12 @@ def test_neural_network(model, model_type, test_set, constants, criterion, test_
             loss = loss_object(model_prediction, targets.float()) # use object to compute loss            
             test_results[trial]['loss'] = loss.item()
             
+            # Store targets and predictions to local cpu memory
+            targets = targets.float().to('cpu')
+            model_prediction = model_prediction.to('cpu')     
+            
             # De-normalize targets & model predictions
-            targets = (targets.float()*(targets_max - targets_min)) + targets_min
+            targets = (targets*(targets_max - targets_min)) + targets_min
             model_prediction = (model_prediction*(targets_max - targets_min)) + targets_min
             
             # Record test signals and metrics

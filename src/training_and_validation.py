@@ -236,6 +236,7 @@ def train_neural_network(train_set, model, model_type, optuna_flag, trial, epoch
     train_losses = []
     
     # prep model for training
+    model.to(device)
     model.train() 
     
     # Set up TQDM

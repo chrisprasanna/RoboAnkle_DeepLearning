@@ -91,6 +91,7 @@ class GRU(nn.Module):
 
     def forward(self, x, h0):
         # forward pass through gru
+        self.gru.flatten_parameters()
         out, h0 = self.gru(x, h0)
 
         # forward pass through output layer and activation function
