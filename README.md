@@ -230,7 +230,7 @@ This deep learning pipeline is currently being expanded to train deep neural net
 
 - Yao Qin, Dongjin Song, Haifeng Chen, Wei Cheng, Guofei Jiang, Garrison W. Cottrell. [A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction](https://arxiv.org/pdf/1704.02971.pdf). arXiv preprint arXiv:1704.02971 (2017).
 
-- Zhenye-Na. ["PyTorch Implementation of DA-RNN"](http://www.google.fr/  "Named link title"). (2018).
+- Alexey Kurochkin. ["DA-RNN"](https://github.com/KurochkinAlexey/DA-RNN.git). (2019).
 
 - Bjarte Mehus Sunde. ["Early Stopping for PyTorch"](https://github.com/Bjarten/early-stopping-pytorch#:~:text=Early%20stopping%20is%20a%20form,a%20row%20the%20training%20stops.). (2019).
 
