@@ -1,5 +1,5 @@
 
-# RoboAnkle_DeepLearning
+# :mechanical_leg: Using Deep Learning for Predicting Robotic Ankle Dynamics :mechanical_leg:
 
   
 
