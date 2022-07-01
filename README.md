@@ -24,22 +24,13 @@ This software was developed to build models that can estimate and predict powere
 ## Table of Contents
 
 - [Installation](#installation)
-
 - [Usage](#usage)
-
 - [Features](#features)
-
 - [Results](#results)
-
 - [Tests](#tests)
-
 - [Future Work](#future-work)
-
 - [Credits](#credits)
-
 - [License](#license)
-
-  
 
 ## Installation
 
@@ -49,15 +40,17 @@ This software was developed to build models that can estimate and predict powere
 
 3. Navigate to your working directory using the cd command
 
-4. Run the following command in the Anaconda prompt:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;  ````conda env create --name NAME --file environment.yml````<br/>
+4. Run the following command in the Anaconda prompt:
+	```
+	conda env create --name NAME --file environment.yml
+	```
+	> where NAME needs to be changed to the name of the conda virtual environment for this project. This environment contains all the package installations and dependencies for this project.
 
-&nbsp;&nbsp;&nbsp;&nbsp;where NAME needs to be changed to the name of the conda virtual environment for this project. This environment contains all the package installations and dependencies for this project.
-
-5. Run the following command in the Anaconda prompt:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;  ````conda activate NAME````
-
-&nbsp;&nbsp;&nbsp;&nbsp; This activates the conda environment containing all the required packages and their versions. 
+5. Run the following command in the Anaconda prompt:
+	```
+	conda activate NAME
+	```
+	> This activates the conda environment containing all the required packages and their versions. 
 
 6. Run the following command in the Anaconda prompt:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;  ````pip install -e .````<br/>
