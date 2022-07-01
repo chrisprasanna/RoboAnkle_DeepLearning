@@ -52,10 +52,11 @@ This software was developed to build models that can estimate and predict powere
 	```
 	> This activates the conda environment containing all the required packages and their versions. 
 
-6. Run the following command in the Anaconda prompt:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;  ````pip install -e .````<br/>
-
-&nbsp;&nbsp;&nbsp;&nbsp;This command installs a project package and tells Python to look for the library code within the /src folder.
+6. Run the following command in the Anaconda prompt:
+	```
+	pip install -e .
+	```
+	> This command installs a project package and tells Python to look for the library code within the /src folder.
 
   
 
