@@ -34,29 +34,29 @@ This software was developed to build models that can estimate and predict powere
 
 ## Installation
 
-1. Download this repository and move it to your desired working directory
+- Download this repository and move it to your desired working directory
 
-2. Open the Anaconda prompt
+- Open the Anaconda prompt
 
-3. Navigate to your working directory using the cd command
+- Navigate to your working directory using the cd command
 
-4. Run the following command in the Anaconda prompt:
+- Run the following command in the Anaconda prompt:
 	```
 	conda env create --name NAME --file environment.yml
 	```
-	> where NAME needs to be changed to the name of the conda virtual environment for this project. This environment contains all the package installations and dependencies for this project.
+	where NAME needs to be changed to the name of the conda virtual environment for this project. This environment contains all the package installations and dependencies for this project.
 
-5. Run the following command in the Anaconda prompt:
+- Run the following command in the Anaconda prompt:
 	```
 	conda activate NAME
 	```
-	> This activates the conda environment containing all the required packages and their versions. 
+	This activates the conda environment containing all the required packages and their versions. 
 
-6. Run the following command in the Anaconda prompt:
+- Run the following command in the Anaconda prompt:
 	```
 	pip install -e .
 	```
-	> This command installs a project package and tells Python to look for the library code within the /src folder.
+	This command installs a project package and tells Python to look for the library code within the /src folder.
 
   
 
@@ -232,22 +232,4 @@ This deep learning pipeline is currently being expanded to train deep neural net
 
 ## License
 
-  
-
-MIT License
-
-  
-
-Copyright (c) 2022 Christopher Prasanna
-
-  
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-  
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-  
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+[MIT](https://github.com/chrisprasanna/RoboAnkle_DeepLearning/blob/main/LICENSE.md)
